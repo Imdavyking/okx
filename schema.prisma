@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Asp {
+  id            String     @id // e.g. "riskgate", "cortex" — used as asp_id in API
+  name          String
+  category      String     // "finance" | "software" | "lifestyle" | "art"
+  endpointUrl   String
+  method        String     @default("GET") // GET or POST
+  testPayload   String?    // JSON string sent as body/query for POST test calls
+  createdAt     DateTime   @default(now())
+
+  pings         Ping[]
+  incidents     Incident[]
+}
+
+model Ping {
+  id          Int      @id @default(autoincrement())
+  aspId       String
+  asp         Asp      @relation(fields: [aspId], references: [id])
+  timestamp   DateTime @default(now())
+  success     Boolean  // true if 2xx and schema matched
+  statusCode  Int?
+  latencyMs   Int?
+  schemaMatch Boolean  @default(true)
+  errorMsg    String?
+
+  @@index([aspId, timestamp])
+}
+
+model Incident {
+  id          Int      @id @default(autoincrement())
+  aspId       String
+  asp         Asp      @relation(fields: [aspId], references: [id])
+  description String
+  evidenceUrl String?
+  reportedBy  String?  // caller identity/agent id, optional
+  createdAt   DateTime @default(now())
+}
