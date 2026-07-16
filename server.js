@@ -22,6 +22,14 @@ app.get("/health", (req, res) => {
   });
 });
 
+app.get("/", (req, res) => {
+  res.json({
+    status: "ok",
+    service: "agenttrust",
+    time: new Date().toISOString(),
+  });
+});
+
 // --- Tool 1: check_reliability ---
 // GET /check_reliability?asp_id=riskgate
 app.get("/check_reliability", async (req, res) => {
